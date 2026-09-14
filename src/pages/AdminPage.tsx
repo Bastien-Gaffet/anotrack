@@ -193,12 +193,26 @@ function ExamAdminCard({
           </>
         )}
         {exam.status === "published" && (
-          <button
-            className="btn-ink"
-            onClick={() => setStatus.mutate({ password, id: exam.id, status: "closed" })}
-          >
-            Dépublier
-          </button>
+          <>
+            <button
+              className="btn-ink"
+              onClick={() => setStatus.mutate({ password, id: exam.id, status: "closed" })}
+            >
+              Dépublier
+            </button>
+            <button
+              className="btn-accent"
+              onClick={() => {
+                const url = `${window.location.origin}/ds/${exam.id}`;
+                navigator.clipboard.writeText(
+                  `📢 Classement publié : ${exam.title} (${exam.subject})\nRetrouve ton rang avec ton numéro anonyme ici : ${url}\nNuméro oublié ? Ton code personnel te le rend sur la même page.`,
+                );
+                setError("Annonce copiée — colle-la dans le groupe de la classe !");
+              }}
+            >
+              Copier l'annonce
+            </button>
+          </>
         )}
         <button
           className="btn-ink !border-accent !text-accent hover:!bg-accent hover:!text-accent-foreground"

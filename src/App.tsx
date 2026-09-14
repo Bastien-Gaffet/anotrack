@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
 import ExamPage from "@/pages/ExamPage";
 import AdminPage from "@/pages/AdminPage";
+import ConfidentialitePage from "@/pages/ConfidentialitePage";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/ds/:id" element={<ExamPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/confidentialite" element={<ConfidentialitePage />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </Layout>

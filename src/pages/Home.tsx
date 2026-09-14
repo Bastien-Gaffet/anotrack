@@ -85,7 +85,13 @@ export default function Home() {
             </div>
           )}
 
-          {exams.data?.map((exam) => (
+          {exams.data?.map((exam) => {
+            const isNew =
+              exam.status === "published" &&
+              exam.publishedAt &&
+              Date.now() - new Date(exam.publishedAt).getTime() <
+                7 * 24 * 3600 * 1000;
+            return (
             <Link
               key={exam.id}
               to={`/ds/${exam.id}`}
@@ -105,12 +111,17 @@ export default function Home() {
                   {exam.maxPoints}
                 </p>
               </div>
-              <Stamp status={exam.status} />
+              {isNew ? (
+                <span className="stamp text-accent">Nouveau !</span>
+              ) : (
+                <Stamp status={exam.status} />
+              )}
               <span className="hidden text-2xl text-foreground/30 transition-transform group-hover:translate-x-1 group-hover:text-foreground md:inline">
                 →
               </span>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>

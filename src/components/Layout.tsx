@@ -57,6 +57,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           <span className="label-mono text-foreground/40">
             AnoTrack — personne ne connaît ta note, sauf toi
           </span>
+          <Link
+            to="/confidentialite"
+            className="label-mono text-foreground/40 transition-opacity hover:opacity-60"
+          >
+            Données &amp; confidentialité
+          </Link>
           <span className="label-mono text-foreground/40">
             un numéro, un rang, rien de plus
           </span>
