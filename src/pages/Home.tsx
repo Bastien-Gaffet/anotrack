@@ -109,6 +109,11 @@ export default function Home() {
                 <p className="label-mono tnum mt-1 text-foreground/40">
                   {exam.submissionCount}/{exam.expectedCount} notes · barème{" "}
                   {exam.maxPoints}
+                  {exam.classMean !== null && exam.classMean !== undefined && (
+                    <span className="text-accent">
+                      {" "}· moy. {exam.classMean}/{exam.maxPoints}
+                    </span>
+                  )}
                 </p>
               </div>
               {isNew ? (

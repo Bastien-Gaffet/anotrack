@@ -44,6 +44,14 @@ export default function Layout({ children }: { children: ReactNode }) {
               Les DS
             </Link>
             <Link
+              to="/evolution"
+              className={`label-mono transition-opacity hover:opacity-60 ${
+                location.pathname === "/evolution" ? "text-accent" : "text-foreground/50"
+              }`}
+            >
+              Mon évolution
+            </Link>
+            <Link
               to="/admin"
               className="label-mono text-foreground/50 transition-opacity hover:opacity-60"
             >

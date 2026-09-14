@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- Image de partage AnoTrack — dessinée en vectoriel -->
+  <rect width="1200" height="630" fill="#fff9ef"/>
+  <!-- marge classeur + ligne rouge -->
+  <line x1="120" y1="0" x2="120" y2="630" stroke="#db3358" stroke-width="3" opacity="0.55"/>
+  <circle cx="60" cy="315" r="26" fill="#fff9ef" stroke="#1a1612" stroke-width="3"/>
+  <circle cx="60" cy="120" r="26" fill="#fff9ef" stroke="#1a1612" stroke-width="3"/>
+  <circle cx="60" cy="510" r="26" fill="#fff9ef" stroke="#1a1612" stroke-width="3"/>
+  <!-- logo -->
+  <g transform="translate(250,315)">
+    <circle r="150" fill="none" stroke="#db3358" stroke-width="17"/>
+    <circle r="124" fill="none" stroke="#1a1612" stroke-width="3.5"/>
+    <text y="8" text-anchor="middle" dominant-baseline="central"
+          font-family="'DejaVu Serif', Georgia, serif" font-weight="bold"
+          font-size="126" letter-spacing="-4" fill="#1a1612">n°</text>
+    <circle cy="-108" r="7" fill="#db3358"/>
+    <circle cy="108" r="7" fill="#db3358"/>
+  </g>
+  <!-- texte -->
+  <text x="470" y="290" font-family="'DejaVu Serif', Georgia, serif" font-weight="bold"
+        font-size="96" fill="#1a1612" letter-spacing="-2">Ano<tspan fill="#db3358">Track</tspan></text>
+  <text x="474" y="372" font-family="'DejaVu Sans Mono', monospace" font-size="30"
+        fill="#1a1612" opacity="0.75" letter-spacing="2">CLASSEMENT ANONYME DE DS</text>
+  <text x="474" y="430" font-family="'DejaVu Serif', Georgia, serif" font-style="italic"
+        font-size="28" fill="#1a1612" opacity="0.6">un numéro, un rang, rien de plus</text>
+  <!-- cadre -->
+  <rect x="18" y="18" width="1164" height="594" fill="none" stroke="#1a1612"
+        stroke-width="3" opacity="0.25"/>
+</svg>

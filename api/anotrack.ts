@@ -168,11 +168,26 @@ export const anoRouter = createRouter({
     const db = getDb();
     const all = await db.select().from(exams).orderBy(asc(exams.createdAt));
     const withCounts = await Promise.all(
-      all.map(async (e) => ({
-        ...e,
-        maxPoints: Number(e.maxPoints),
-        submissionCount: await submissionCount(e.id),
-      })),
+      all.map(async (e) => {
+        let classMean: number | null = null;
+        if (e.status === "published") {
+          const rows = await db
+            .select({ grade: submissions.grade })
+            .from(submissions)
+            .where(eq(submissions.examId, e.id));
+          if (rows.length) {
+            classMean = fmt(
+              rows.reduce((a, r) => a + Number(r.grade), 0) / rows.length,
+            );
+          }
+        }
+        return {
+          ...e,
+          maxPoints: Number(e.maxPoints),
+          submissionCount: await submissionCount(e.id),
+          classMean,
+        };
+      }),
     );
     return withCounts.reverse(); // plus récent en premier
   }),
@@ -382,6 +397,98 @@ export const anoRouter = createRouter({
         });
       }
       return { anonNumber: row.anonNumber, grade: Number(row.grade) };
+    }),
+
+  // Mon évolution : nom + code personnel → toutes mes notes sur tous les DS.
+  // Pour les DS publiés : mon rang et la moyenne de classe en plus.
+  // Rien de tout cela n'est visible par les autres.
+  myHistory: guarded
+    .input(
+      z.object({
+        studentId: z.number().int().positive(),
+        secret: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      const [student] = await db
+        .select()
+        .from(students)
+        .where(eq(students.id, input.studentId))
+        .limit(1);
+      if (
+        !student ||
+        !student.secretHash ||
+        student.secretHash !== hashSecret(input.studentId, input.secret)
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "Nom ou code personnel incorrect. (Jamais déposé de note ? Le code se crée au premier dépôt.)",
+        });
+      }
+
+      const mine = await db
+        .select({
+          subId: submissions.id,
+          examId: submissions.examId,
+          grade: submissions.grade,
+          anonNumber: submissions.anonNumber,
+          title: exams.title,
+          subject: exams.subject,
+          maxPoints: exams.maxPoints,
+          status: exams.status,
+          createdAt: exams.createdAt,
+          publishedAt: exams.publishedAt,
+        })
+        .from(submissions)
+        .innerJoin(exams, eq(submissions.examId, exams.id))
+        .where(eq(submissions.studentId, input.studentId));
+
+      const history = await Promise.all(
+        mine.map(async (m) => {
+          let rank: number | null = null;
+          let classMean: number | null = null;
+          let classCount: number | null = null;
+          if (m.status === "published") {
+            const rows = await db
+              .select()
+              .from(submissions)
+              .where(eq(submissions.examId, m.examId));
+            const sorted = rows
+              .map((r) => ({ id: r.id, grade: Number(r.grade) }))
+              .sort((a, b) => b.grade - a.grade);
+            const ranks = computeRanks(sorted);
+            rank = ranks.get(m.subId) ?? null;
+            classCount = sorted.length;
+            classMean = sorted.length
+              ? fmt(sorted.reduce((a, r) => a + r.grade, 0) / sorted.length)
+              : null;
+          }
+          return {
+            examId: m.examId,
+            title: m.title,
+            subject: m.subject,
+            maxPoints: Number(m.maxPoints),
+            status: m.status,
+            publishedAt: m.publishedAt,
+            grade: Number(m.grade),
+            anonNumber: m.anonNumber,
+            rank,
+            classMean,
+            classCount,
+          };
+        }),
+      );
+
+      // Ordre chronologique des DS (création), publiés ou non
+      history.sort(
+        (a, b) =>
+          new Date(mine.find((m) => m.examId === a.examId)!.createdAt).getTime() -
+          new Date(mine.find((m) => m.examId === b.examId)!.createdAt).getTime(),
+      );
+
+      return { anonNumber: student.anonNumber, history };
     }),
 
   // Résultats publiés : numéro, note, rang + stats. Aucun nom.

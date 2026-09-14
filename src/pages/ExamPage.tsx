@@ -1,10 +1,151 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router";
+import QRCode from "qrcode";
 import { trpc } from "@/providers/trpc";
 import Stamp from "@/components/Stamp";
 
 function formatGrade(g: number) {
   return Number.isInteger(g) ? String(g) : g.toFixed(2).replace(/0$/, "");
+}
+
+/* --------------------- QR code à projeter en classe --------------------- */
+
+function QRSection() {
+  const [svg, setSvg] = useState<string>("");
+  useEffect(() => {
+    QRCode.toString(window.location.href, {
+      type: "svg",
+      margin: 1,
+      width: 512,
+      color: { dark: "#1a1612", light: "#fff9ef" },
+    }).then(setSvg);
+  }, []);
+
+  return (
+    <details className="group border-t border-foreground/15 py-8">
+      <summary className="label-mono cursor-pointer list-none text-foreground/50 hover:text-foreground">
+        <span className="group-open:hidden">+ Projeter en classe (QR code)</span>
+        <span className="hidden group-open:inline">− Projeter en classe (QR code)</span>
+      </summary>
+      <div className="mt-6 flex flex-col items-start gap-6 md:flex-row md:items-center">
+        <div
+          className="w-48 shrink-0 border-2 border-foreground p-3 [&>svg]:h-auto [&>svg]:w-full"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+        <div>
+          <p className="max-w-sm text-[15px] leading-relaxed text-foreground/70">
+            Affiche cette page au vidéoprojecteur : chacun scanne le QR code
+            avec son téléphone et tombe directement sur le dépôt de note de ce
+            DS.
+          </p>
+          <p className="label-mono mt-3 break-all text-foreground/40">
+            {typeof window !== "undefined" ? window.location.href : ""}
+          </p>
+        </div>
+      </div>
+    </details>
+  );
+}
+
+/* ------------------------ Histogramme des notes ------------------------- */
+
+function Histogram({
+  rows,
+  maxPoints,
+  myGrade,
+}: {
+  rows: { grade: number }[];
+  maxPoints: number;
+  myGrade: number | null;
+}) {
+  // Largeur de classe : 1 pt jusqu'à 20, au-delà on regroupe (~20 classes max)
+  const binWidth = maxPoints > 25 ? Math.ceil(maxPoints / 20) : 1;
+  const binCount = Math.max(1, Math.ceil((maxPoints + 1e-9) / binWidth) + (maxPoints % binWidth === 0 ? 1 : 0));
+  const bins = Array.from({ length: binCount }, () => 0);
+  rows.forEach((r) => {
+    const i = Math.min(binCount - 1, Math.floor(r.grade / binWidth));
+    bins[i]++;
+  });
+  const peak = Math.max(...bins, 1);
+  const mean = rows.length
+    ? rows.reduce((a, r) => a + r.grade, 0) / rows.length
+    : 0;
+  const myBin = myGrade === null ? -1 : Math.min(binCount - 1, Math.floor(myGrade / binWidth));
+
+  const W = 720;
+  const H = 220;
+  const padB = 30;
+  const padT = 14;
+  const barW = W / binCount;
+  const y = (v: number) => padT + (H - padB - padT) * (1 - v / peak);
+  const xMean = (mean / (binCount * binWidth)) * W;
+
+  return (
+    <div className="mt-12">
+      <p className="label-mono text-foreground/50">Répartition des notes</p>
+      <svg viewBox={`0 0 ${W} ${H}`} className="mt-4 w-full" role="img" aria-label="Histogramme des notes">
+        {bins.map((v, i) => (
+          <g key={i}>
+            <rect
+              x={i * barW + barW * 0.12}
+              y={y(v)}
+              width={barW * 0.76}
+              height={Math.max(2, H - padB - y(v))}
+              fill={i === myBin ? "#db3358" : "#1a1612"}
+              opacity={i === myBin ? 1 : 0.85}
+            />
+            {v > 0 && (
+              <text
+                x={i * barW + barW / 2}
+                y={y(v) - 6}
+                textAnchor="middle"
+                fontSize="14"
+                fill="#1a1612"
+                style={{ fontFamily: "'Space Mono', monospace" }}
+              >
+                {v}
+              </text>
+            )}
+            {(binCount <= 21 || i % Math.ceil(binCount / 20) === 0) && (
+              <text
+                x={i * barW + barW / 2}
+                y={H - 8}
+                textAnchor="middle"
+                fontSize="12"
+                fill="#1a1612"
+                opacity="0.5"
+                style={{ fontFamily: "'Space Mono', monospace" }}
+              >
+                {i * binWidth}
+              </text>
+            )}
+          </g>
+        ))}
+        {/* ligne de la moyenne */}
+        <line
+          x1={xMean}
+          x2={xMean}
+          y1={padT}
+          y2={H - padB}
+          stroke="#db3358"
+          strokeWidth="2"
+          strokeDasharray="5 5"
+        />
+        <text
+          x={Math.min(xMean, W - 70)}
+          y={padT + 2}
+          fontSize="12"
+          fill="#db3358"
+          style={{ fontFamily: "'Space Mono', monospace" }}
+        >
+          moy. {formatGrade(Math.round(mean * 100) / 100)}
+        </text>
+      </svg>
+      <p className="label-mono mt-2 text-foreground/40">
+        hauteur = nombre de notes{myBin >= 0 && " · ta note est en rouge"}
+      </p>
+    </div>
+  );
 }
 
 /* ------------------------- Dépôt / modification ------------------------- */
@@ -342,6 +483,13 @@ function ResultsSection({ examId, maxPoints }: { examId: number; maxPoints: numb
         ))}
       </div>
 
+      {/* Histogramme */}
+      <Histogram
+        rows={rows}
+        maxPoints={maxPoints}
+        myGrade={myRow ? myRow.grade : null}
+      />
+
       {/* Mise en avant personnelle */}
       {myRow && (
         <p className="mt-8 text-lg">
@@ -473,7 +621,10 @@ export default function ExamPage() {
       </section>
 
       {e.status === "open" && (
-        <SubmitSection examId={e.id} maxPoints={e.maxPoints} />
+        <>
+          <SubmitSection examId={e.id} maxPoints={e.maxPoints} />
+          <QRSection />
+        </>
       )}
 
       {e.status === "closed" && (
