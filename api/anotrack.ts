@@ -368,7 +368,7 @@ export const anoRouter = createRouter({
       z.object({
         examId: z.number().int().positive(),
         studentId: z.number().int().positive(),
-        secret: z.string().min(1),
+        secret: z.string().min(4, "Ton code personnel doit faire au moins 4 caractères."),
       }),
     )
     .mutation(async ({ input }) => {
@@ -419,7 +419,7 @@ export const anoRouter = createRouter({
     .input(
       z.object({
         studentId: z.number().int().positive(),
-        secret: z.string().min(1),
+        secret: z.string().min(4, "Ton code personnel doit faire au moins 4 caractères."),
       }),
     )
     .mutation(async ({ input }) => {
