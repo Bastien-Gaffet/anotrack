@@ -5,6 +5,7 @@ import { eq, and, asc, count, sql } from "drizzle-orm";
 import { createRouter, publicQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import { students, exams, submissions, settings } from "@db/schema";
+import { assertNotLocked, recordFailure, recordSuccess } from "./lib/rateLimit";
 
 /* ------------------------- bootstrap du schéma --------------------------- */
 // Idempotent : crée les tables si elles n'existent pas encore (une seule
@@ -116,13 +117,16 @@ async function getAdminHash(): Promise<string | null> {
 }
 
 async function assertAdmin(password: string) {
+  assertNotLocked("admin");
   const stored = await getAdminHash();
   if (!stored || stored !== hashPassword(password)) {
+    recordFailure("admin");
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Mot de passe incorrect.",
     });
   }
+  recordSuccess("admin");
 }
 
 const adminInput = <T extends z.ZodRawShape>(shape: T) =>
@@ -265,6 +269,8 @@ export const anoRouter = createRouter({
         });
 
       // Code personnel : défini une fois, vérifié ensuite
+      const secretKey = `secret:${input.studentId}`;
+      assertNotLocked(secretKey);
       let firstEver = false;
       if (!student.secretHash) {
         firstEver = true;
@@ -275,11 +281,14 @@ export const anoRouter = createRouter({
       } else if (
         student.secretHash !== hashSecret(input.studentId, input.secret)
       ) {
+        recordFailure(secretKey);
         throw new TRPCError({
           code: "FORBIDDEN",
           message:
             "Code personnel incorrect. C'est celui que tu as choisi à ta première note (tous DS confondus). Oublié ? L'admin peut le réinitialiser.",
         });
+      } else {
+        recordSuccess(secretKey);
       }
 
       const [existing] = await db
@@ -363,6 +372,8 @@ export const anoRouter = createRouter({
       }),
     )
     .mutation(async ({ input }) => {
+      const secretKey = `secret:${input.studentId}`;
+      assertNotLocked(secretKey);
       const db = getDb();
       const [student] = await db
         .select()
@@ -374,12 +385,14 @@ export const anoRouter = createRouter({
         !student.secretHash ||
         student.secretHash !== hashSecret(input.studentId, input.secret)
       ) {
+        recordFailure(secretKey);
         throw new TRPCError({
           code: "FORBIDDEN",
           message:
             "Nom ou code personnel incorrect. (Jamais déposé de note ? Le code se crée au premier dépôt.)",
         });
       }
+      recordSuccess(secretKey);
       const [row] = await db
         .select()
         .from(submissions)
@@ -410,6 +423,8 @@ export const anoRouter = createRouter({
       }),
     )
     .mutation(async ({ input }) => {
+      const secretKey = `secret:${input.studentId}`;
+      assertNotLocked(secretKey);
       const db = getDb();
       const [student] = await db
         .select()
@@ -421,12 +436,14 @@ export const anoRouter = createRouter({
         !student.secretHash ||
         student.secretHash !== hashSecret(input.studentId, input.secret)
       ) {
+        recordFailure(secretKey);
         throw new TRPCError({
           code: "FORBIDDEN",
           message:
             "Nom ou code personnel incorrect. (Jamais déposé de note ? Le code se crée au premier dépôt.)",
         });
       }
+      recordSuccess(secretKey);
 
       const mine = await db
         .select({
