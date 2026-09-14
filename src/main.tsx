@@ -14,3 +14,12 @@ createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </StrictMode>,
 )
+
+// PWA : enregistre le service worker uniquement en production (HTTPS requis).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      /* pas de SW, pas grave */
+    });
+  });
+}

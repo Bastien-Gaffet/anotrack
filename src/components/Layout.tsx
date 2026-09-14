@@ -21,7 +21,12 @@ export default function Layout({ children }: { children: ReactNode }) {
       <BinderHoles />
       <header className="relative z-10 border-b border-foreground/15">
         <div className="mx-auto flex max-w-4xl items-baseline justify-between px-6 py-5 md:px-10">
-          <Link to="/" className="group flex items-baseline gap-3">
+          <Link to="/" className="group flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="AnoTrack"
+              className="h-9 w-9 transition-transform duration-300 group-hover:-rotate-6"
+            />
             <span className="font-serif-display text-[22px] font-semibold tracking-tight">
               Ano<span className="text-accent">Track</span>
             </span>

@@ -1,12 +1,16 @@
 {
-  "name": "PrepaTrack — Suivi Concours CPGE",
-  "short_name": "PrepaTrack",
+  "name": "AnoTrack — Classement anonyme",
+  "short_name": "AnoTrack",
+  "description": "Saisis ta note de DS, reçois ton numéro anonyme, découvre le classement quand il est publié.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0f0f1a",
-  "theme_color": "#0f0f1a",
+  "lang": "fr",
+  "background_color": "#fff9ef",
+  "theme_color": "#fff9ef",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
