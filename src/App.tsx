@@ -5,6 +5,7 @@ import ExamPage from "@/pages/ExamPage";
 import AdminPage from "@/pages/AdminPage";
 import ConfidentialitePage from "@/pages/ConfidentialitePage";
 import EvolutionPage from "@/pages/EvolutionPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
   return (
@@ -15,7 +16,7 @@ export default function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/evolution" element={<EvolutionPage />} />
         <Route path="/confidentialite" element={<ConfidentialitePage />} />
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   );
