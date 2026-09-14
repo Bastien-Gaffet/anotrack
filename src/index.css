@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 37 100% 97%;        /* crème papier #fff9ef */
+    --foreground: 0 0% 0%;            /* encre noire */
+    --card: 37 100% 97%;
+    --card-foreground: 0 0% 0%;
+    --popover: 37 100% 97%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 37 100% 97%;
+    --secondary: 37 40% 92%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 37 30% 92%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 347 70% 53%;            /* cramoisi #db3356 */
+    --accent-foreground: 37 100% 97%;
+    --destructive: 347 70% 53%;
+    --destructive-foreground: 37 100% 97%;
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 347 70% 53%;
+    --radius: 0px;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  html {
+    background: hsl(var(--background));
+  }
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Fraunces', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  /* Petit label de catégorie en mono majuscules espacées */
+  .label-mono {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Chiffres tabulaires pour les tableaux de classement */
+  .tnum {
+    font-feature-settings: 'tnum';
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Bouton bordure fine, inversion au survol */
+  .btn-ink {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid hsl(var(--foreground));
+    background: transparent;
+    color: hsl(var(--foreground));
+    padding: 12px 24px;
+    transition: background-color 150ms, color 150ms;
+    cursor: pointer;
+  }
+  .btn-ink:hover:not(:disabled) {
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
+  }
+  .btn-ink:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .btn-accent {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid hsl(var(--accent));
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    padding: 12px 24px;
+    transition: background-color 150ms, color 150ms;
+    cursor: pointer;
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: transparent;
+    color: hsl(var(--accent));
+  }
+  .btn-accent:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* Tampon façon cachet scolaire */
+  .stamp {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    border: 1.5px solid currentColor;
+    padding: 5px 10px 4px 12px;
+    display: inline-block;
+    transform: rotate(-2.5deg);
+  }
+
+  /* Champs */
+  .input-ink {
+    width: 100%;
+    background: transparent;
+    border: 1px solid hsl(var(--foreground));
+    padding: 12px 14px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 16px;
+    outline: none;
+  }
+  .input-ink:focus {
+    border-color: hsl(var(--accent));
+    box-shadow: 0 0 0 1px hsl(var(--accent));
+  }
+
+  select.input-ink {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+  }
+
+  /* Lignes du tableau de classement */
+  .rank-row {
+    border-bottom: 1px solid hsl(var(--foreground) / 0.18);
+    transition: background-color 120ms;
+  }
+  .rank-row:hover {
+    background: hsl(var(--foreground) / 0.04);
+  }
+  .rank-row.me {
+    background: hsl(var(--accent) / 0.08);
+  }
+}
+
+/* Texture « cahier » : fine ligne pointillée de marge */
+.margin-rule {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 44px;
+  width: 0;
+  border-left: 1px dashed hsl(var(--foreground) / 0.25);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.binder-hole {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: hsl(var(--foreground) / 0.75);
+}
