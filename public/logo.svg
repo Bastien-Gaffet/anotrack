@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- AnoTrack — logo vectoriel, dessiné à la main (pas d'IA générative) -->
+  <circle cx="256" cy="256" r="232" fill="none" stroke="#db3358" stroke-width="26"/>
+  <circle cx="256" cy="256" r="192" fill="none" stroke="#1a1612" stroke-width="5"/>
+  <text x="256" y="256" text-anchor="middle" dominant-baseline="central"
+        font-family="'DejaVu Serif', Georgia, serif" font-weight="bold"
+        font-size="196" letter-spacing="-6" fill="#1a1612">n°</text>
+  <circle cx="256" cy="72" r="9" fill="#db3358"/>
+  <circle cx="256" cy="440" r="9" fill="#db3358"/>
+</svg>
