@@ -1,73 +1,41 @@
-# React + TypeScript + Vite
+# AnoTrack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Classement anonyme des notes de DS pour une classe de prépa.
 
-Currently, two official plugins are available:
+Le professeur rend les notes mais pas le classement ? Chaque élève dépose sa note sur AnoTrack et reçoit un numéro anonyme. Quand toute la classe a participé, le classement complet est publié, sans aucun nom. Chacun connaît son rang, personne ne connaît celui des autres.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Fonctionnement
 
-## React Compiler
+1. L'administrateur crée un DS (matière, titre, nombre de copies attendues).
+2. Chaque élève s'identifie avec un code personnel et dépose sa note.
+3. Tant que toutes les notes ne sont pas arrivées, rien n'est visible.
+4. Une fois le compte atteint, le classement anonyme et l'histogramme des notes sont publiés.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Fonctionnalités
 
-## Expanding the ESLint configuration
+- Classement anonyme par DS, avec histogramme des notes
+- Page « Mon évolution » qui suit son propre rang d'un DS à l'autre
+- QR code de projection pour partager un DS en classe
+- Protection contre le brute-force sur les codes élèves et le mot de passe administrateur
+- Installable sur téléphone (PWA)
+- Page de confidentialité (RGPD) : seules les notes et un numéro anonyme sont stockés
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Couche | Technologie |
+|---|---|
+| Frontend | React 19, Vite, Tailwind CSS |
+| Backend | Hono, tRPC 11 |
+| Base de données | MySQL 8, Drizzle ORM |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Tout tient dans un seul processus Node : le serveur sert à la fois l'API (`/api/trpc/*`) et le frontend compilé. Les tables sont créées automatiquement au premier démarrage.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Lancer en local
+
+```bash
+npm install
+cp .env.example .env    # renseigner DATABASE_URL, APP_ID et APP_SECRET
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Pour la production : `npm run build` puis `npm start` (port 3000 par défaut, variable `PORT` respectée). Le guide complet de déploiement sur un VPS (nginx, HTTPS, systemd) est dans [deploiement-vps.md](deploiement-vps.md).
